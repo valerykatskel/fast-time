@@ -38,7 +38,7 @@ const CalendarComponent = () => {
       const dayData = fastingHoursPerDay[dayStr];
 
       if (dayData) {
-        return <p className="text-center small m-0" style={{color: 'green'}}>{dayData.hours} ч</p>;
+        return <p className="text-center small m-0" style={{color: 'green'}}>{dayData.hours.toFixed(1)} ч</p>;
       }
     }
     return null;
