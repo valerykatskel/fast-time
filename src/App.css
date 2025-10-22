@@ -100,30 +100,31 @@ h5 {
 }
 
 .bottom-nav-bar .nav-link {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  /* Removed flex styles from here, now handled by .nav-item-content */
   font-size: 0.75rem;
   color: #666;
   padding: 5px 0;
   flex: 1;
 }
 
-.bottom-nav-bar .nav-link.active {
-  color: #007bff; /* Primary color */
+.nav-item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px; /* Add gap for spacing between icon and text */
 }
 
 .bottom-nav-bar .nav-link svg {
-  margin-bottom: 3px;
+  /* margin-bottom: 3px; Removed as gap handles spacing */
 }
 
 .central-button {
   position: relative;
-  top: -20px;
+  top: -22.5px;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 65px;
+  height: 65px;
   display: flex;
   align-items: center;
   justify-content: center;
