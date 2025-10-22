@@ -1,16 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Card, Row, Col, Form } from 'react-bootstrap';
+import { Button, Card, Row, Col, Form, Modal } from 'react-bootstrap';
 import { saveSession } from '../utils/DataManager';
 
 import CircularTimer from './CircularTimer';
 
 const ACTIVE_FAST_KEY = 'activeFast';
 
+// Helper to format datetime-local input
+const toLocalISOString = (date) => {
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000; //смещение в миллисекундах
+  const localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, -1);
+  return localISOTime.substring(0, 16);
+};
+
 const Timer = () => {
   const [isActive, setIsActive] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [manualStartTime, setManualStartTime] = useState('');
+
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [manualEndTime, setManualEndTime] = useState('');
 
   // При загрузке компонента, проверяем есть ли активный таймер в localStorage
   useEffect(() => {
@@ -43,7 +53,7 @@ const Timer = () => {
     setManualStartTime('');
   };
 
-  const handleStop = useCallback(() => {
+  const handleStopNow = useCallback(() => {
     if (startTime) {
       saveSession({ start: startTime, end: Date.now() });
     }
@@ -51,7 +61,22 @@ const Timer = () => {
     setIsActive(false);
     setElapsed(0);
     setStartTime(null);
+    setShowEndModal(false);
   }, [startTime]);
+
+  const handleStopAtTime = useCallback(() => {
+    if (manualEndTime && startTime && new Date(manualEndTime).getTime() > startTime) {
+      saveSession({ start: startTime, end: new Date(manualEndTime).getTime() });
+      localStorage.removeItem(ACTIVE_FAST_KEY);
+      setIsActive(false);
+      setElapsed(0);
+      setStartTime(null);
+      setManualEndTime('');
+      setShowEndModal(false);
+    } else {
+      alert('Пожалуйста, укажите корректное время окончания, которое позже времени начала.');
+    }
+  }, [startTime, manualEndTime]);
 
   const handleReset = () => {
     localStorage.removeItem(ACTIVE_FAST_KEY);
@@ -59,6 +84,17 @@ const Timer = () => {
     setElapsed(0);
     setStartTime(null);
     setManualStartTime('');
+    setShowEndModal(false);
+  };
+
+  const handleShowEndModal = () => {
+    setManualEndTime(toLocalISOString(Date.now())); // Предзаполняем текущим временем
+    setShowEndModal(true);
+  };
+
+  const handleCloseEndModal = () => {
+    setShowEndModal(false);
+    setManualEndTime('');
   };
 
   return (
@@ -87,7 +123,7 @@ const Timer = () => {
                 Начать
               </Button>
             ) : (
-              <Button variant="danger" size="lg" onClick={handleStop} className="w-100">
+              <Button variant="danger" size="lg" onClick={handleShowEndModal} className="w-100">
                 Завершить
               </Button>
             )}
@@ -99,6 +135,36 @@ const Timer = () => {
           </Col>
         </Row>
       </Card.Body>
+
+      {/* Модальное окно для завершения голодания */}
+      <Modal show={showEndModal} onHide={handleCloseEndModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Завершить голодание</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Как вы хотите завершить текущее голодание?</p>
+          <Button variant="primary" onClick={handleStopNow} className="w-100 mb-3">
+            Завершить сейчас
+          </Button>
+          <hr />
+          <Form.Group className="mb-3">
+            <Form.Label>Указать время окончания:</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              value={manualEndTime}
+              onChange={(e) => setManualEndTime(e.target.value)}
+            />
+          </Form.Group>
+          <Button variant="success" onClick={handleStopAtTime} className="w-100">
+            Сохранить указанное время
+          </Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseEndModal}>
+            Отмена
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Card>
   );
 };
