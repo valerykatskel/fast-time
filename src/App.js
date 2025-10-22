@@ -59,17 +59,17 @@ function App() {
           </div>
         )}
         {activeTab === 'calendar' && (
-          <div className="p-3 border border-top-0">
+          <div className="p-3">
             <CalendarComponent />
           </div>
         )}
         {activeTab === 'history' && (
-          <div className="p-3 border border-top-0">
+          <div className="p-3">
             <History />
           </div>
         )}
         {activeTab === 'charts' && (
-          <div className="p-3 border border-top-0">
+          <div className="p-3">
             <Charts />
           </div>
         )}
