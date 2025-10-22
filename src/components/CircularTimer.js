@@ -1,8 +1,8 @@
 import React from 'react';
 
-const CircularTimer = ({ elapsed, startTime }) => {
-  const radius = 85;
-  const stroke = 15;
+const CircularTimer = ({ elapsed, startTime, size = 85 }) => {
+  const radius = size;
+  const stroke = size / 6; // Adjust stroke proportionally
   const normalizedRadius = radius - stroke / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
 

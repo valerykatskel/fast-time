@@ -107,7 +107,7 @@ const Timer = () => {
       <Card.Body className="text-center">
         <Card.Title>Таймер голодания</Card.Title>
         <div className="my-4 d-flex justify-content-center">
-          <CircularTimer elapsed={elapsed} startTime={startTime} />
+          <CircularTimer size={120} elapsed={elapsed} startTime={startTime} />
         </div>
 
         {!isActive && (
