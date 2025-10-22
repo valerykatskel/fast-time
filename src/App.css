@@ -1,38 +1,82 @@
-.App {
-  text-align: center;
+body {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+#root {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 15px;
 }
 
-.App-link {
-  color: #61dafb;
+.container-mobile {
+  max-width: 500px;
+  width: 100%;
+  padding: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+h5 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 10px 15px;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 10px 15px;
+}
+
+.react-calendar {
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  width: 100%;
+}
+
+.react-calendar__tile--active {
+  background-color: #8884d8 !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+.react-calendar__tile--now {
+  background-color: #e6e6fa !important;
+  border-radius: 8px;
+}
+
+.list-group-item {
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #eee;
+}
+
+.list-group-item:last-child {
+  margin-bottom: 0;
 }

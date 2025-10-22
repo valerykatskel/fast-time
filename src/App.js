@@ -5,7 +5,7 @@ import History from './components/History';
 
 function App() {
   return (
-    <Container className="my-4">
+    <Container className="my-4 container-mobile">
       <h1 className="text-center mb-4">Интервальное голодание</h1>
       <Tabs defaultActiveKey="timer" id="main-tabs" className="mb-3" fill>
         <Tab eventKey="timer" title="Таймер">
