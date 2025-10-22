@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Modal, Button, Form } from 'react-bootstrap';
+import { Container, Modal, Button, Form, Toast, ToastContainer } from 'react-bootstrap';
 import Timer from './components/Timer';
 import History from './components/History';
 import Charts from './components/Charts';
 import CalendarComponent from './components/CalendarComponent';
 import BottomNavBar from './components/BottomNavBar';
 import { saveSession } from './utils/DataManager'; // Import saveSession
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import './App.css';
 
 const ACTIVE_FAST_KEY = 'activeFast';
@@ -25,6 +26,8 @@ function App() {
   const [manualStart, setManualStart] = useState('');
   const [manualEnd, setManualEnd] = useState('');
   const [manualWeight, setManualWeight] = useState('');
+  const [showUpdateToast, setShowUpdateToast] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState(null);
 
   // Check for active fast on load and when tabs change
   useEffect(() => {
@@ -80,8 +83,40 @@ function App() {
     }
   }, [manualStart, manualEnd, manualWeight]);
 
+  useEffect(() => {
+    serviceWorkerRegistration.register({
+      onUpdate: registration => {
+        setWaitingWorker(registration.waiting);
+        setShowUpdateToast(true);
+      }
+    });
+  }, []);
+
+  const handleUpdate = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      waitingWorker.addEventListener('statechange', event => {
+        if (event.target.state === 'activated') {
+          window.location.reload();
+        }
+      });
+    }
+  };
+
   return (
     <div className="app-container">
+      <ToastContainer position="top-center" className="p-3">
+        <Toast show={showUpdateToast} onClose={() => setShowUpdateToast(false)}>
+          <Toast.Header>
+            <strong className="me-auto">Доступна новая версия</strong>
+          </Toast.Header>
+          <Toast.Body>
+            <p>Обновить приложение до последней версии?</p>
+            <Button variant="primary" onClick={handleUpdate}>Обновить</Button>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+
       <Container className="my-4 container-mobile">
         <h1 className="text-center mb-4">Интервальное голодание</h1>
         
