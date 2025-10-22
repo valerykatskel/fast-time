@@ -1,33 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Modal, Button } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Modal, Button, Form } from 'react-bootstrap';
 import Timer from './components/Timer';
 import History from './components/History';
 import Charts from './components/Charts';
-import CalendarComponent from './components/CalendarComponent'; // Import new CalendarComponent
+import CalendarComponent from './components/CalendarComponent';
 import BottomNavBar from './components/BottomNavBar';
-import './App.css'; // Import App.css
+import { saveSession } from './utils/DataManager'; // Import saveSession
+import './App.css';
 
-const ACTIVE_FAST_KEY = 'activeFast'; // Re-use from Timer.js
+const ACTIVE_FAST_KEY = 'activeFast';
+
+// Helper to format datetime-local input
+const toLocalISOString = (date) => {
+  const tzoffset = (new Date()).getTimezoneOffset() * 60000; //смещение в миллисекундах
+  const localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, -1);
+  return localISOTime.substring(0, 16);
+};
 
 function App() {
   const [activeTab, setActiveTab] = useState('timer');
   const [hasActiveFast, setHasActiveFast] = useState(false);
   const [showCentralActionModal, setShowCentralActionModal] = useState(false);
+  const [showManualAddModal, setShowManualAddModal] = useState(false);
+  const [manualStart, setManualStart] = useState('');
+  const [manualEnd, setManualEnd] = useState('');
+  const [manualWeight, setManualWeight] = useState('');
 
   // Check for active fast on load and when tabs change
   useEffect(() => {
     const activeFast = localStorage.getItem(ACTIVE_FAST_KEY);
     setHasActiveFast(!!activeFast);
-  }, [activeTab]);
+  }, [activeTab, showManualAddModal]); // Re-check when manual add modal closes
 
   const handleCentralButtonClick = () => {
     const activeFast = localStorage.getItem(ACTIVE_FAST_KEY);
     if (activeFast) {
-      // If active fast, directly open manual add modal (which is in History component)
-      // For now, we'll just navigate to History and assume user will use the form there.
-      // A better approach would be to lift the manual add modal state to App.js
-      setActiveTab('history');
-      // TODO: Ideally, open the manual add modal directly here.
+      // If active fast, open manual add modal
+      setManualStart(toLocalISOString(Date.now())); // Pre-fill with current time
+      setManualEnd(toLocalISOString(Date.now())); // Pre-fill with current time
+      setShowManualAddModal(true);
     } else {
       // If no active fast, show choice modal
       setShowCentralActionModal(true);
@@ -35,6 +46,12 @@ function App() {
   };
 
   const handleCloseCentralActionModal = () => setShowCentralActionModal(false);
+  const handleCloseManualAddModal = () => {
+    setShowManualAddModal(false);
+    setManualStart('');
+    setManualEnd('');
+    setManualWeight('');
+  };
 
   const handleStartNewFast = () => {
     setActiveTab('timer');
@@ -43,10 +60,25 @@ function App() {
   };
 
   const handleAddPastFast = () => {
-    setActiveTab('history');
     setShowCentralActionModal(false);
-    // History component will show the manual add form
+    setManualStart(toLocalISOString(Date.now())); // Pre-fill with current time
+    setManualEnd(toLocalISOString(Date.now())); // Pre-fill with current time
+    setShowManualAddModal(true);
   };
+
+  const handleManualAddSave = useCallback(() => {
+    if (manualStart && manualEnd && new Date(manualStart) < new Date(manualEnd)) {
+      saveSession({
+        start: new Date(manualStart).getTime(),
+        end: new Date(manualEnd).getTime(),
+        weight: manualWeight ? parseFloat(manualWeight) : undefined,
+      });
+      handleCloseManualAddModal();
+      setActiveTab('history'); // Navigate to history to see the new entry
+    } else {
+      alert('Пожалуйста, убедитесь, что время начала раньше времени окончания.');
+    }
+  }, [manualStart, manualEnd, manualWeight]);
 
   return (
     <div className="app-container">
@@ -76,7 +108,7 @@ function App() {
       </Container>
       <BottomNavBar activeTab={activeTab} onTabChange={setActiveTab} onCentralButtonClick={handleCentralButtonClick} />
 
-      {/* Modal for Central Action Button */}
+      {/* Modal for Central Action Button (choice) */}
       <Modal show={showCentralActionModal} onHide={handleCloseCentralActionModal}>
         <Modal.Header closeButton>
           <Modal.Title>Действие</Modal.Title>
@@ -92,6 +124,37 @@ function App() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseCentralActionModal}>
+            Отмена
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal for Manual Add Past Fast */}
+      <Modal show={showManualAddModal} onHide={handleCloseManualAddModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Добавить прошлый интервал</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-2">
+              <Form.Label>Начало</Form.Label>
+              <Form.Control type="datetime-local" value={manualStart} onChange={e => setManualStart(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Окончание</Form.Label>
+              <Form.Control type="datetime-local" value={manualEnd} onChange={e => setManualEnd(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Вес (кг, необязательно)</Form.Label>
+              <Form.Control type="number" step="0.1" value={manualWeight} onChange={e => setManualWeight(e.target.value)} placeholder="Например, 70.5" />
+            </Form.Group>
+            <Button variant="primary" onClick={handleManualAddSave} className="w-100">
+              Сохранить интервал
+            </Button>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseManualAddModal}>
             Отмена
           </Button>
         </Modal.Footer>

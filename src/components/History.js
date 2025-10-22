@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Form, Button, ListGroup, Modal, Row, Col } from 'react-bootstrap';
-import { getSessions, saveSession, updateSession, deleteSession } from '../utils/DataManager';
+import { getSessions, updateSession, deleteSession } from '../utils/DataManager';
 
 // Helper to format datetime-local input
 const toLocalISOString = (date) => {
@@ -9,13 +9,9 @@ const toLocalISOString = (date) => {
   return localISOTime.substring(0, 16);
 };
 
-const History = () => {
+const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
   const [sessions, setSessions] = useState([]);
   
-  // State for manual add form
-  const [manualStart, setManualStart] = useState('');
-  const [manualEnd, setManualEnd] = useState('');
-
   // State for edit modal
   const [showModal, setShowModal] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
@@ -23,6 +19,10 @@ const History = () => {
   const [editEnd, setEditEnd] = useState('');
   const [editWeight, setEditWeight] = useState(''); // New state for editing weight
 
+  // States for manual add modal (lifted to App.js)
+  const [manualStart, setManualStart] = useState('');
+  const [manualEnd, setManualEnd] = useState('');
+  const [manualWeight, setManualWeight] = useState('');
 
   const loadAndProcessData = useCallback(() => {
     const allSessions = getSessions().sort((a, b) => b.start - a.start); // Сортируем по убыванию
@@ -32,20 +32,6 @@ const History = () => {
   useEffect(() => {
     loadAndProcessData();
   }, [loadAndProcessData]);
-
-  const handleManualSave = () => {
-    if (manualStart && manualEnd && new Date(manualStart) < new Date(manualEnd)) {
-      saveSession({
-        start: new Date(manualStart).getTime(),
-        end: new Date(manualEnd).getTime(),
-      });
-      setManualStart('');
-      setManualEnd('');
-      loadAndProcessData();
-    } else {
-      alert('Пожалуйста, убедитесь, что время начала раньше времени окончания.');
-    }
-  };
 
   const handleDelete = (sessionId) => {
     if (window.confirm('Вы уверены, что хотите удалить эту запись?')) {
@@ -94,25 +80,6 @@ const History = () => {
     <>
       <Card>
         <Card.Body>
-          <Card.Title className="text-center">Добавить прошлый интервал</Card.Title>
-          <Form>
-            <Form.Group className="mb-2">
-              <Form.Label>Начало</Form.Label>
-              <Form.Control type="datetime-local" value={manualStart} onChange={e => setManualStart(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Окончание</Form.Label>
-              <Form.Control type="datetime-local" value={manualEnd} onChange={e => setManualEnd(e.target.value)} />
-            </Form.Group>
-            <Button variant="primary" onClick={handleManualSave} className="w-100">
-              Сохранить интервал
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
-
-      <Card className="mt-4">
-        <Card.Body>
           <Card.Title className="text-center">Список интервалов</Card.Title>
           <ListGroup variant="flush">
             {sessions.map(session => (
@@ -138,6 +105,37 @@ const History = () => {
           </ListGroup>
         </Card.Body>
       </Card>
+
+      {/* Manual Add Modal (now controlled by App.js) */}
+      <Modal show={showManualAddModal} onHide={onManualAddClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Добавить прошлый интервал</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-2">
+              <Form.Label>Начало</Form.Label>
+              <Form.Control type="datetime-local" value={manualStart} onChange={e => setManualStart(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Окончание</Form.Label>
+              <Form.Control type="datetime-local" value={manualEnd} onChange={e => setManualEnd(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Вес (кг, необязательно)</Form.Label>
+              <Form.Control type="number" step="0.1" value={manualWeight} onChange={e => setManualWeight(e.target.value)} placeholder="Например, 70.5" />
+            </Form.Group>
+            <Button variant="primary" onClick={() => onManualAddSave(manualStart, manualEnd, manualWeight)} className="w-100">
+              Сохранить интервал
+            </Button>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onManualAddClose}>
+            Отмена
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {editingSession && (
         <Modal show={showModal} onHide={handleCloseModal}>
