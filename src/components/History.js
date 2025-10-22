@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Form, Button, ListGroup, Modal, Row, Col } from 'react-bootstrap';
+import { Card, Form, Button, Modal, Row, Col, ButtonGroup } from 'react-bootstrap';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { getSessions, updateSession, deleteSession } from '../utils/DataManager';
 
 // Helper to format datetime-local input
@@ -78,33 +79,37 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
 
   return (
     <>
-      <Card>
-        <Card.Body>
-          <Card.Title className="text-center">Список интервалов</Card.Title>
-          <ListGroup variant="flush">
-            {sessions.map(session => (
-              <ListGroup.Item key={session.id}>
-                <Row className="align-items-center">
-                  <Col>
-                    <div><strong>Начало:</strong> {formatSessionDate(session.start)}</div>
-                    <div><strong>Конец:</strong> {formatSessionDate(session.end)}</div>
-                    <div><strong>Длительность:</strong> {formatDuration(session.start, session.end)}</div>
-                    {session.weight && <div><strong>Вес:</strong> {session.weight} кг</div>}
-                  </Col>
-                  <Col xs="auto">
+      <h2 className="text-center mb-4">История интервалов</h2>
+      {sessions.map(session => (
+        <Card key={session.id} className="mb-3 history-card">
+          <Card.Body>
+            <Row className="align-items-center">
+              <Col>
+                <div><strong>Начало:</strong> {formatSessionDate(session.start)}</div>
+                <div><strong>Конец:</strong> {formatSessionDate(session.end)}</div>
+                <div className="mt-2">
+                  <strong>Длительность:</strong>
+                  <span className="h5 ms-2">{formatDuration(session.start, session.end)}</span>
+                </div>
+                {session.weight && <div><strong>Вес:</strong> {session.weight} кг</div>}
+                
+                <Row className="mt-3">
+                  <Col className="d-grid">
                     <Button variant="outline-primary" size="sm" onClick={() => handleShowModal(session)}>
-                      Изм.
+                      Редактировать
                     </Button>
-                    <Button variant="outline-danger" size="sm" className="ms-2" onClick={() => handleDelete(session.id)}>
-                      Удл.
+                  </Col>
+                  <Col className="d-grid">
+                    <Button variant="outline-danger" size="sm" onClick={() => handleDelete(session.id)}>
+                      Удалить
                     </Button>
                   </Col>
                 </Row>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Card.Body>
-      </Card>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      ))}
 
       {/* Manual Add Modal (now controlled by App.js) */}
       <Modal show={showManualAddModal} onHide={onManualAddClose}>
@@ -130,11 +135,6 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
             </Button>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={onManualAddClose}>
-            Отмена
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {editingSession && (
