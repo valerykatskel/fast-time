@@ -11,7 +11,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  BarChart, // Added BarChart
+  Bar // Added Bar
 } from 'recharts';
 
 // Helper to format datetime-local input
@@ -24,6 +26,7 @@ const toLocalISOString = (date) => {
 const History = () => {
   const [sessions, setSessions] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [weightChartData, setWeightChartData] = useState([]); // New state for weight chart data
   const [date, setDate] = useState(new Date());
   
   // State for manual add form
@@ -35,13 +38,15 @@ const History = () => {
   const [editingSession, setEditingSession] = useState(null);
   const [editStart, setEditStart] = useState('');
   const [editEnd, setEditEnd] = useState('');
+  const [editWeight, setEditWeight] = useState(''); // New state for editing weight
 
 
   const loadAndProcessData = useCallback(() => {
     const allSessions = getSessions().sort((a, b) => b.start - a.start); // Сортируем по убыванию
     setSessions(allSessions);
 
-    const data = allSessions.reduce((acc, session) => {
+    // Process fasting hours data
+    const fastingData = allSessions.reduce((acc, session) => {
       const dateKey = new Date(session.start).toLocaleDateString();
       const durationHours = (session.end - session.start) / (1000 * 60 * 60);
       
@@ -53,8 +58,21 @@ const History = () => {
       return acc;
     }, {});
 
-    const formattedData = Object.values(data).map(d => ({...d, hours: parseFloat(d.hours.toFixed(1))})).sort((a, b) => new Date(a.date.split('.').reverse().join('-')) - new Date(b.date.split('.').reverse().join('-')));
-    setChartData(formattedData);
+    const formattedFastingData = Object.values(fastingData).map(d => ({...d, hours: parseFloat(d.hours.toFixed(1))})).sort((a, b) => new Date(a.date.split('.').reverse().join('-')) - new Date(b.date.split('.').reverse().join('-')));
+    setChartData(formattedFastingData);
+
+    // Process weight data
+    const weightData = {};
+    allSessions.forEach(session => {
+      if (session.weight) {
+        const dateKey = new Date(session.end).toLocaleDateString(); // Use end date for weight
+        weightData[dateKey] = { date: dateKey, weight: session.weight }; // Take the last recorded weight for the day
+      }
+    });
+
+    const formattedWeightData = Object.values(weightData).map(d => ({...d, weight: parseFloat(d.weight.toFixed(1))})).sort((a, b) => new Date(a.date.split('.').reverse().join('-')) - new Date(b.date.split('.').reverse().join('-')));
+    setWeightChartData(formattedWeightData);
+
   }, []);
 
   useEffect(() => {
@@ -86,12 +104,14 @@ const History = () => {
     setEditingSession(session);
     setEditStart(toLocalISOString(session.start));
     setEditEnd(toLocalISOString(session.end));
+    setEditWeight(session.weight ? session.weight.toString() : ''); // Pre-fill weight
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingSession(null);
+    setEditWeight(''); // Clear weight on close
   };
 
   const handleUpdate = () => {
@@ -99,6 +119,7 @@ const History = () => {
       updateSession(editingSession.id, {
         start: new Date(editStart).getTime(),
         end: new Date(editEnd).getTime(),
+        weight: editWeight ? parseFloat(editWeight) : undefined, // Pass edited weight
       });
       handleCloseModal();
       loadAndProcessData();
@@ -160,6 +181,46 @@ const History = () => {
               <p className="text-center">Нет данных для отображения графика.</p>
             )}
           </div>
+
+          <hr />
+
+          <div className="my-4">
+            <h5 className="text-center">Вес по дням (кг)</h5>
+            {weightChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={weightChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="weight" fill="#82ca9d" name="Вес" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center">Нет данных для отображения веса.</p>
+            )}
+          </div>
+
+          <hr />
+
+          <div className="my-4">
+            <h5 className="text-center">Динамика веса (кг)</h5>
+            {weightChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={weightChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="weight" stroke="#ff7300" name="Вес" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center">Нет данных для отображения динамики веса.</p>
+            )}
+          </div>
         </Card.Body>
       </Card>
 
@@ -193,6 +254,7 @@ const History = () => {
                     <div><strong>Начало:</strong> {formatSessionDate(session.start)}</div>
                     <div><strong>Конец:</strong> {formatSessionDate(session.end)}</div>
                     <div><strong>Длительность:</strong> {formatDuration(session.start, session.end)}</div>
+                    {session.weight && <div><strong>Вес:</strong> {session.weight} кг</div>}
                   </Col>
                   <Col xs="auto">
                     <Button variant="outline-primary" size="sm" onClick={() => handleShowModal(session)}>
@@ -219,9 +281,13 @@ const History = () => {
               <Form.Label>Начало</Form.Label>
               <Form.Control type="datetime-local" value={editStart} onChange={e => setEditStart(e.target.value)} />
             </Form.Group>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>Окончание</Form.Label>
               <Form.Control type="datetime-local" value={editEnd} onChange={e => setEditEnd(e.target.value)} />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Вес (кг, необязательно)</Form.Label>
+              <Form.Control type="number" step="0.1" value={editWeight} onChange={e => setEditWeight(e.target.value)} placeholder="Например, 70.5" />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>

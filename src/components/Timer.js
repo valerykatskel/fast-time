@@ -21,6 +21,7 @@ const Timer = () => {
 
   const [showEndModal, setShowEndModal] = useState(false);
   const [manualEndTime, setManualEndTime] = useState('');
+  const [currentWeight, setCurrentWeight] = useState(''); // New state for weight
 
   // При загрузке компонента, проверяем есть ли активный таймер в localStorage
   useEffect(() => {
@@ -55,28 +56,30 @@ const Timer = () => {
 
   const handleStopNow = useCallback(() => {
     if (startTime) {
-      saveSession({ start: startTime, end: Date.now() });
+      saveSession({ start: startTime, end: Date.now(), weight: currentWeight ? parseFloat(currentWeight) : undefined });
     }
     localStorage.removeItem(ACTIVE_FAST_KEY);
     setIsActive(false);
     setElapsed(0);
     setStartTime(null);
+    setCurrentWeight(''); // Reset weight
     setShowEndModal(false);
-  }, [startTime]);
+  }, [startTime, currentWeight]);
 
   const handleStopAtTime = useCallback(() => {
     if (manualEndTime && startTime && new Date(manualEndTime).getTime() > startTime) {
-      saveSession({ start: startTime, end: new Date(manualEndTime).getTime() });
+      saveSession({ start: startTime, end: new Date(manualEndTime).getTime(), weight: currentWeight ? parseFloat(currentWeight) : undefined });
       localStorage.removeItem(ACTIVE_FAST_KEY);
       setIsActive(false);
       setElapsed(0);
       setStartTime(null);
       setManualEndTime('');
+      setCurrentWeight(''); // Reset weight
       setShowEndModal(false);
     } else {
       alert('Пожалуйста, укажите корректное время окончания, которое позже времени начала.');
     }
-  }, [startTime, manualEndTime]);
+  }, [startTime, manualEndTime, currentWeight]);
 
   const handleReset = () => {
     localStorage.removeItem(ACTIVE_FAST_KEY);
@@ -84,6 +87,7 @@ const Timer = () => {
     setElapsed(0);
     setStartTime(null);
     setManualStartTime('');
+    setCurrentWeight(''); // Reset weight
     setShowEndModal(false);
   };
 
@@ -95,6 +99,7 @@ const Timer = () => {
   const handleCloseEndModal = () => {
     setShowEndModal(false);
     setManualEndTime('');
+    setCurrentWeight(''); // Reset weight
   };
 
   return (
@@ -143,12 +148,22 @@ const Timer = () => {
         </Modal.Header>
         <Modal.Body>
           <p>Как вы хотите завершить текущее голодание?</p>
+          <Form.Group className="mb-3">
+            <Form.Label>Ваш вес (кг, необязательно):</Form.Label>
+            <Form.Control
+              type="number"
+              step="0.1"
+              value={currentWeight}
+              onChange={(e) => setCurrentWeight(e.target.value)}
+              placeholder="Например, 70.5"
+            />
+          </Form.Group>
           <Button variant="primary" onClick={handleStopNow} className="w-100 mb-3">
             Завершить сейчас
           </Button>
           <hr />
           <Form.Group className="mb-3">
-            <Form.Label>Указать время окончания:</Form.Label>
+            <Form.Label>Или укажите точное время окончания:</Form.Label>
             <Form.Control
               type="datetime-local"
               value={manualEndTime}
