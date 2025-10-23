@@ -78,25 +78,7 @@ const Charts = () => {
           )}
         </div>
 
-        <hr />
 
-        <div className="my-4">
-          <h5 className="text-center">Вес по дням (кг)</h5>
-          {weightChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={weightChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="weight" fill="#82ca9d" name="Вес" />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <p className="text-center">Нет данных для отображения веса.</p>
-          )}
-        </div>
 
         <hr />
 
