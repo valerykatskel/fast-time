@@ -107,7 +107,7 @@ const Charts = () => {
               <LineChart data={weightChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" padding={{ interval: 0 }} />
-                <YAxis />
+                <YAxis domain={[60, 'auto']} />
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="weight" stroke="#ff7300" name="Вес" />
