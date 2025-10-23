@@ -17,6 +17,8 @@ import {
 const Charts = () => {
   const [chartData, setChartData] = useState([]);
   const [weightChartData, setWeightChartData] = useState([]);
+  const [minWeight, setMinWeight] = useState(0);
+  const [maxWeight, setMaxWeight] = useState(0);
 
   const loadAndProcessChartData = useCallback(() => {
     const allSessions = getSessions().sort((a, b) => b.start - a.start); // Сортируем по убыванию
@@ -48,6 +50,21 @@ const Charts = () => {
 
     const formattedWeightData = Object.values(weightData).map(d => ({...d, weight: parseFloat(d.weight.toFixed(1))})).sort((a, b) => new Date(a.date.split('.').reverse().join('-')) - new Date(b.date.split('.').reverse().join('-')));
     setWeightChartData(formattedWeightData);
+
+    // Calculate min and max weight for dynamic Y-axis
+    if (formattedWeightData.length > 0) {
+      const weights = formattedWeightData.map(d => d.weight);
+      if (weights.length === 1) {
+        setMinWeight(0);
+        setMaxWeight(weights[0]);
+      } else {
+        setMinWeight(Math.min(...weights));
+        setMaxWeight(Math.max(...weights));
+      }
+    } else {
+      setMinWeight(0);
+      setMaxWeight(0);
+    }
 
   }, []);
 
@@ -89,7 +106,7 @@ const Charts = () => {
               <LineChart data={weightChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" padding={{ interval: 0 }} />
-                <YAxis domain={[60, 'auto']} />
+                <YAxis domain={[minWeight, maxWeight]} />
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="weight" stroke="#ff7300" name="Вес" />
