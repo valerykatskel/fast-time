@@ -19,6 +19,8 @@ const Charts = () => {
   const [weightChartData, setWeightChartData] = useState([]);
   const [minWeight, setMinWeight] = useState(0);
   const [maxWeight, setMaxWeight] = useState(0);
+  const [minHours, setMinHours] = useState(0);
+  const [maxHours, setMaxHours] = useState(0);
 
   const loadAndProcessChartData = useCallback(() => {
     const allSessions = getSessions().sort((a, b) => b.start - a.start); // Сортируем по убыванию
@@ -38,6 +40,21 @@ const Charts = () => {
 
     const formattedFastingData = Object.values(fastingData).map(d => ({...d, hours: parseFloat(d.hours.toFixed(1))})).sort((a, b) => new Date(a.date.split('.').reverse().join('-')) - new Date(b.date.split('.').reverse().join('-')));
     setChartData(formattedFastingData);
+
+    // Calculate min and max hours for dynamic Y-axis
+    if (formattedFastingData.length > 0) {
+      const hours = formattedFastingData.map(d => d.hours);
+      if (hours.length === 1) {
+        setMinHours(0);
+        setMaxHours(hours[0]);
+      } else {
+        setMinHours(Math.min(...hours));
+        setMaxHours(Math.max(...hours));
+      }
+    } else {
+      setMinHours(0);
+      setMaxHours(0);
+    }
 
     // Process weight data
     const weightData = {};
@@ -84,7 +101,7 @@ const Charts = () => {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" padding={{ interval: 0 }} />
-                <YAxis />
+                <YAxis domain={[minHours, maxHours]} />
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="hours" stroke="#8884d8" name="Часы голодания" />
