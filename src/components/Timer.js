@@ -22,6 +22,7 @@ const Timer = () => {
   const [showEndModal, setShowEndModal] = useState(false);
   const [manualEndTime, setManualEndTime] = useState('');
   const [currentWeight, setCurrentWeight] = useState(''); // New state for weight
+  const [currentWater, setCurrentWater] = useState(''); // New state for water
 
   // При загрузке компонента, проверяем есть ли активный таймер в localStorage
   useEffect(() => {
@@ -56,30 +57,42 @@ const Timer = () => {
 
   const handleStopNow = useCallback(() => {
     if (startTime) {
-      saveSession({ start: startTime, end: Date.now(), weight: currentWeight ? parseFloat(currentWeight) : undefined });
+      saveSession({
+        start: startTime,
+        end: Date.now(),
+        weight: currentWeight ? parseFloat(currentWeight) : undefined,
+        water: currentWater ? parseFloat(currentWater) : undefined, // Add water intake
+      });
     }
     localStorage.removeItem(ACTIVE_FAST_KEY);
     setIsActive(false);
     setElapsed(0);
     setStartTime(null);
     setCurrentWeight(''); // Reset weight
+    setCurrentWater(''); // Reset water
     setShowEndModal(false);
-  }, [startTime, currentWeight]);
+  }, [startTime, currentWeight, currentWater]); // Add currentWater to dependency array
 
   const handleStopAtTime = useCallback(() => {
     if (manualEndTime && startTime && new Date(manualEndTime).getTime() > startTime) {
-      saveSession({ start: startTime, end: new Date(manualEndTime).getTime(), weight: currentWeight ? parseFloat(currentWeight) : undefined });
+      saveSession({
+        start: startTime,
+        end: new Date(manualEndTime).getTime(),
+        weight: currentWeight ? parseFloat(currentWeight) : undefined,
+        water: currentWater ? parseFloat(currentWater) : undefined, // Add water intake
+      });
       localStorage.removeItem(ACTIVE_FAST_KEY);
       setIsActive(false);
       setElapsed(0);
       setStartTime(null);
       setManualEndTime('');
       setCurrentWeight(''); // Reset weight
+      setCurrentWater(''); // Reset water
       setShowEndModal(false);
     } else {
       alert('Пожалуйста, укажите корректное время окончания, которое позже времени начала.');
     }
-  }, [startTime, manualEndTime, currentWeight]);
+  }, [startTime, manualEndTime, currentWeight, currentWater]); // Add currentWater to dependency array
 
   const handleReset = () => {
     localStorage.removeItem(ACTIVE_FAST_KEY);
@@ -100,6 +113,7 @@ const Timer = () => {
     setShowEndModal(false);
     setManualEndTime('');
     setCurrentWeight(''); // Reset weight
+    setCurrentWater(''); // Reset water
   };
 
   return (
@@ -156,6 +170,16 @@ const Timer = () => {
               value={currentWeight}
               onChange={(e) => setCurrentWeight(e.target.value)}
               placeholder="Например, 70.5"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Вода (литры, необязательно):</Form.Label>
+            <Form.Control
+              type="number"
+              step="0.1"
+              value={currentWater}
+              onChange={(e) => setCurrentWater(e.target.value)}
+              placeholder="Например, 1.5"
             />
           </Form.Group>
           <Button variant="primary" onClick={handleStopNow} className="w-100 mb-3">

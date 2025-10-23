@@ -17,10 +17,13 @@ import {
 const Charts = () => {
   const [chartData, setChartData] = useState([]);
   const [weightChartData, setWeightChartData] = useState([]);
+  const [waterChartData, setWaterChartData] = useState([]);
   const [minWeight, setMinWeight] = useState(0);
   const [maxWeight, setMaxWeight] = useState(0);
   const [minHours, setMinHours] = useState(0);
   const [maxHours, setMaxHours] = useState(0);
+  const [minWater, setMinWater] = useState(0);
+  const [maxWater, setMaxWater] = useState(0);
 
   const loadAndProcessChartData = useCallback(() => {
     const allSessions = getSessions().sort((a, b) => b.start - a.start); // Сортируем по убыванию
@@ -83,11 +86,38 @@ const Charts = () => {
       setMaxWeight(0);
     }
 
-  }, []);
+    // Process water data
+    const waterData = {};
+    allSessions.forEach(session => {
+      if (session.water) {
+        const dateKey = new Date(session.end).toLocaleDateString(); // Use end date for water
+        waterData[dateKey] = { date: dateKey, water: session.water }; // Take the last recorded water for the day
+      }
+    });
+
+    const formattedWaterData = Object.values(waterData).map(d => ({...d, water: parseFloat(d.water.toFixed(1))})).sort((a, b) => new Date(a.date.split('.').reverse().join('-')) - new Date(b.date.split('.').reverse().join('-')));
+    setWaterChartData(formattedWaterData); // Set state for water chart data
+
+    // Calculate min and max water for dynamic Y-axis
+    if (formattedWaterData.length > 0) {
+      const waters = formattedWaterData.map(d => d.water);
+      if (waters.length === 1) {
+        setMinWater(0);
+        setMaxWater(waters[0]);
+      } else {
+        setMinWater(Math.min(...waters));
+        setMaxWater(Math.max(...waters));
+      }
+    } else {
+      setMinWater(0);
+      setMaxWater(0);
+    }
+
+  }, [setWaterChartData]); // Add setWaterChartData to dependency array
 
   useEffect(() => {
     loadAndProcessChartData();
-  }, [loadAndProcessChartData]);
+  }, [loadAndProcessChartData, setWaterChartData]);
 
   return (
     <Card>
@@ -131,6 +161,26 @@ const Charts = () => {
             </ResponsiveContainer>
           ) : (
             <p className="text-center">Нет данных для отображения динамики веса.</p>
+          )}
+        </div>
+
+        <hr />
+
+        <div className="my-4">
+          <h5 className="text-center">Потребление воды (литры)</h5>
+          {waterChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={waterChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" padding={{ interval: 0 }} />
+                <YAxis domain={[minWater, maxWater]} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="water" stroke="#007bff" name="Вода" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-center">Нет данных для отображения потребления воды.</p>
           )}
         </div>
       </Card.Body>

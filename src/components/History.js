@@ -19,6 +19,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
   const [editStart, setEditStart] = useState('');
   const [editEnd, setEditEnd] = useState('');
   const [editWeight, setEditWeight] = useState(''); // New state for editing weight
+  const [editWater, setEditWater] = useState(''); // New state for editing water
 
   // States for manual add modal (lifted to App.js)
   const [manualStart, setManualStart] = useState('');
@@ -46,6 +47,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
     setEditStart(toLocalISOString(session.start));
     setEditEnd(toLocalISOString(session.end));
     setEditWeight(session.weight ? session.weight.toString() : ''); // Pre-fill weight
+    setEditWater(session.water ? session.water.toString() : ''); // Pre-fill water
     setShowModal(true);
   };
 
@@ -53,6 +55,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
     setShowModal(false);
     setEditingSession(null);
     setEditWeight(''); // Clear weight on close
+    setEditWater(''); // Clear water on close
   };
 
   const handleUpdate = () => {
@@ -61,6 +64,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
         start: new Date(editStart).getTime(),
         end: new Date(editEnd).getTime(),
         weight: editWeight ? parseFloat(editWeight) : undefined, // Pass edited weight
+        water: editWater ? parseFloat(editWater) : undefined, // Pass edited water
       });
       handleCloseModal();
       loadAndProcessData();
@@ -92,6 +96,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
                   <span className="h5 ms-2">{formatDuration(session.start, session.end)}</span>
                 </div>
                 {session.weight && <div><strong>Вес:</strong> {session.weight} кг</div>}
+                {session.water && <div><strong>Вода:</strong> {session.water} л</div>}
                 
                 <Row className="mt-3">
                   <Col className="d-grid">
@@ -151,9 +156,13 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
               <Form.Label>Окончание</Form.Label>
               <Form.Control type="datetime-local" value={editEnd} onChange={e => setEditEnd(e.target.value)} />
             </Form.Group>
-            <Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>Вес (кг, необязательно)</Form.Label>
               <Form.Control type="number" step="0.1" value={editWeight} onChange={e => setEditWeight(e.target.value)} placeholder="Например, 70.5" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Вода (литры, необязательно)</Form.Label>
+              <Form.Control type="number" step="0.1" value={editWater} onChange={e => setEditWater(e.target.value)} placeholder="Например, 1.5" />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>

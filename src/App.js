@@ -26,6 +26,7 @@ function App() {
   const [manualStart, setManualStart] = useState('');
   const [manualEnd, setManualEnd] = useState('');
   const [manualWeight, setManualWeight] = useState('');
+  const [manualWater, setManualWater] = useState('');
 
   // Check for active fast on load and when tabs change
   useEffect(() => {
@@ -52,6 +53,7 @@ function App() {
     setManualStart('');
     setManualEnd('');
     setManualWeight('');
+    setManualWater(''); // Clear manual water
   };
 
   const handleStartNewFast = () => {
@@ -73,13 +75,14 @@ function App() {
         start: new Date(manualStart).getTime(),
         end: new Date(manualEnd).getTime(),
         weight: manualWeight ? parseFloat(manualWeight) : undefined,
+        water: manualWater ? parseFloat(manualWater) : undefined, // Add water intake
       });
       handleCloseManualAddModal();
       setActiveTab('history'); // Navigate to history to see the new entry
     } else {
       alert('Пожалуйста, убедитесь, что время начала раньше времени окончания.');
     }
-  }, [manualStart, manualEnd, manualWeight]);
+  }, [manualStart, manualEnd, manualWeight, manualWater]);
 
 
 
@@ -154,6 +157,10 @@ function App() {
             <Form.Group className="mb-3">
               <Form.Label>Вес (кг, необязательно)</Form.Label>
               <Form.Control type="number" step="0.1" value={manualWeight} onChange={e => setManualWeight(e.target.value)} placeholder="Например, 70.5" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Вода (литры, необязательно)</Form.Label>
+              <Form.Control type="number" step="0.1" value={manualWater} onChange={e => setManualWater(e.target.value)} placeholder="Например, 1.5" />
             </Form.Group>
             <Button variant="primary" onClick={handleManualAddSave} className="w-100">
               Сохранить интервал
