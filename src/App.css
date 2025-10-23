@@ -19,7 +19,7 @@ body {
   width: 100%;
   max-width: 500px; /* Ограничиваем ширину для мобильного вида */
   margin: 0 auto; /* Центрируем контейнер */
-  padding-bottom: 70px; /* Отступ для нижнего меню */
+  padding-bottom: calc(60px + env(safe-area-inset-bottom)); /* Отступ для нижнего меню с учетом безопасной зоны */
 }
 
 .container-mobile {
@@ -101,11 +101,17 @@ h5 {
 
 /* Styles for BottomNavBar */
 .bottom-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   border-top: 1px solid #eee;
   padding: 0;
-  height: 60px;
+  padding-bottom: env(safe-area-inset-bottom); /* Adjust for iPhone X notch */
+  height: 60px; /* This height will be effectively increased by safe-area-inset-bottom */
   background-color: #fff !important;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure it's above other content */
 }
 
 .bottom-nav-bar .nav-link {
