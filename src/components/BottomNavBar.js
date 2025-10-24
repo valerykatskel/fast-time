@@ -16,7 +16,7 @@ const BottomNavBar = ({ activeTab, onTabChange, onCentralButtonClick }) => {
             <FaCalendarAlt size={20} /><span>Календарь</span>
           </div>
         </Nav.Link>
-        <Button variant="primary" className="central-button" onClick={onCentralButtonClick}>
+        <Button className="central-button" onClick={onCentralButtonClick}>
           <FaPlus size={24} />
         </Button>
         <Nav.Link onClick={() => onTabChange('history')} active={activeTab === 'history'}>

@@ -38,7 +38,7 @@ const CalendarComponent = () => {
       const dayData = fastingHoursPerDay[dayStr];
 
       if (dayData) {
-        return <p className="text-center small m-0" style={{color: 'green'}}>{dayData.hours.toFixed(1)} ч</p>;
+        return <p className="text-center small m-0 fasting-hours-text">{dayData.hours.toFixed(1)} ч</p>;
       }
     }
     return null;
@@ -46,17 +46,11 @@ const CalendarComponent = () => {
 
   return (
     <Card>
-      <Card.Body>
-        <Card.Title className="text-center">Календарь голоданий</Card.Title>
-        
-        <div className="d-flex justify-content-center my-4">
-          <Calendar
+      <Calendar
             onChange={setDate}
             value={date}
             tileContent={getTileContent}
           />
-        </div>
-      </Card.Body>
     </Card>
   );
 };

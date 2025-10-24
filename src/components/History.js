@@ -83,7 +83,6 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
 
   return (
     <>
-      <h2 className="text-center mb-4">История интервалов</h2>
       {sessions.map(session => (
         <Card key={session.id} className="mb-3 history-card">
           <Card.Body>
@@ -100,12 +99,12 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
                 
                 <Row className="mt-3">
                   <Col className="d-grid">
-                    <Button variant="outline-primary" size="sm" onClick={() => handleShowModal(session)}>
+                    <Button className="edit-session-btn" size="sm" onClick={() => handleShowModal(session)}>
                       Редактировать
                     </Button>
                   </Col>
                   <Col className="d-grid">
-                    <Button variant="outline-danger" size="sm" onClick={() => handleDelete(session.id)}>
+                    <Button className="delete-session-btn" size="sm" onClick={() => handleDelete(session.id)}>
                       Удалить
                     </Button>
                   </Col>
@@ -135,7 +134,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
               <Form.Label>Вес (кг, необязательно)</Form.Label>
               <Form.Control type="number" step="0.1" value={manualWeight} onChange={e => setManualWeight(e.target.value)} placeholder="Например, 70.5" />
             </Form.Group>
-            <Button variant="primary" onClick={() => onManualAddSave(manualStart, manualEnd, manualWeight)} className="w-100">
+            <Button className="w-100 save-changes-btn" onClick={() => onManualAddSave(manualStart, manualEnd, manualWeight)}>
               Сохранить интервал
             </Button>
           </Form>
@@ -169,7 +168,7 @@ const History = ({ showManualAddModal, onManualAddClose, onManualAddSave }) => {
             <Button variant="secondary" onClick={handleCloseModal}>
               Отмена
             </Button>
-            <Button variant="primary" onClick={handleUpdate}>
+            <Button className="save-changes-btn" onClick={handleUpdate}>
               Сохранить изменения
             </Button>
           </Modal.Footer>

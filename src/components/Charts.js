@@ -122,8 +122,6 @@ const Charts = () => {
   return (
     <Card>
       <Card.Body>
-        <Card.Title className="text-center">Графики</Card.Title>
-        
         <div className="my-4">
           <h5 className="text-center">График прогресса (часы)</h5>
           {chartData.length > 0 ? (

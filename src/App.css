@@ -1,7 +1,23 @@
+:root {
+  --color-background: #f0f2f5;
+  --color-card-background: #ffffff;
+  --color-primary-text: #333;
+  --color-secondary-text: #666;
+  --color-accent-active-fast: #4caf50;
+  --color-accent-eating-allowed: #ff9800;
+  --color-inactive-button: #6c757d;
+  --color-light-accent: #e8f5e9;
+  --color-border: #eee;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-hover: rgba(0, 0, 0, 0.1);
+  --color-header-text: #2c3e50;
+  --color-subheader-text: #34495e;
+}
+
 body {
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  background-color: #f0f2f5;
-  color: #333;
+  background-color: var(--color-background);
+  color: var(--color-primary-text);
 }
 
 #root {
@@ -30,19 +46,20 @@ body {
 h1 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-header-text);
 }
 
 h5 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #34495e;
+  color: var(--color-subheader-text);
 }
 
 .card {
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px var(--color-shadow);
   border: none;
+  background-color: var(--color-card-background);
 }
 
 .card-title {
@@ -64,26 +81,27 @@ h5 {
 
 .react-calendar {
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--color-shadow);
   border: none;
   width: 100%;
 }
 
 .react-calendar__tile--active {
-  background-color: #8884d8 !important;
+  background-color: var(--color-accent-active-fast) !important;
   color: white !important;
   border-radius: 8px;
 }
 
 .react-calendar__tile--now {
-  background-color: #e6e6fa !important;
+  background-color: var(--color-light-accent) !important;
   border-radius: 8px;
 }
 
 .list-group-item {
   border-radius: 8px;
   margin-bottom: 8px;
-  border: 1px solid #eee;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card-background);
 }
 
 .list-group-item:last-child {
@@ -91,12 +109,12 @@ h5 {
 }
 
 .history-card {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border);
   transition: box-shadow 0.3s ease;
 }
 
 .history-card:hover {
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px var(--color-shadow-hover);
 }
 
 /* Styles for BottomNavBar */
@@ -105,21 +123,25 @@ h5 {
   bottom: 0;
   left: 0;
   right: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border);
   padding: 0;
   padding-bottom: env(safe-area-inset-bottom); /* Adjust for iPhone X notch */
   height: 60px; /* This height will be effectively increased by safe-area-inset-bottom */
-  background-color: #fff !important;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-card-background) !important;
+  box-shadow: 0 -2px 8px var(--color-shadow);
   z-index: 1000; /* Ensure it's above other content */
 }
 
 .bottom-nav-bar .nav-link {
   /* Removed flex styles from here, now handled by .nav-item-content */
   font-size: 0.75rem;
-  color: #666;
+  color: var(--color-secondary-text);
   padding: 5px 0;
   flex: 1;
+}
+
+.bottom-nav-bar .nav-link.active {
+  color: var(--color-accent-active-fast);
 }
 
 .nav-item-content {
@@ -143,13 +165,147 @@ h5 {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px var(--color-shadow);
   z-index: 10;
   border: none;
-  background-color: #007bff !important; /* Primary color */
+  background-color: var(--color-accent-active-fast) !important; /* Primary color */
   color: white !important;
 }
 
 .central-button:hover {
-  background-color: #0056b3 !important;
+  background-color: var(--color-accent-active-fast) !important;
+}
+
+.start-fast-btn {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+}
+
+.start-fast-btn:hover {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+  opacity: 0.9;
+}
+
+.end-fast-btn {
+  background-color: var(--color-accent-eating-allowed);
+  border-color: var(--color-accent-eating-allowed);
+  color: white;
+}
+
+.end-fast-btn:hover {
+  background-color: var(--color-accent-eating-allowed);
+  border-color: var(--color-accent-eating-allowed);
+  color: white;
+  opacity: 0.9;
+}
+
+.reset-fast-btn {
+  background-color: var(--color-inactive-button);
+  border-color: var(--color-inactive-button);
+  color: white;
+}
+
+.reset-fast-btn:hover {
+  background-color: var(--color-inactive-button);
+  border-color: var(--color-inactive-button);
+  color: white;
+  opacity: 0.9;
+}
+
+.save-now-btn {
+  background-color: var(--color-accent-eating-allowed);
+  border-color: var(--color-accent-eating-allowed);
+  color: white;
+}
+
+.save-now-btn:hover {
+  background-color: var(--color-accent-eating-allowed);
+  border-color: var(--color-accent-eating-allowed);
+  color: white;
+  opacity: 0.9;
+}
+
+.save-at-time-btn {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+}
+
+.save-at-time-btn:hover {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+  opacity: 0.9;
+}
+
+.modal-footer .btn-secondary {
+  background-color: var(--color-inactive-button);
+  border-color: var(--color-inactive-button);
+  color: white;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: var(--color-inactive-button);
+  border-color: var(--color-inactive-button);
+  color: white;
+  opacity: 0.9;
+}
+
+.fasting-hours-text {
+  color: var(--color-accent-active-fast);
+}
+
+.edit-session-btn {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+}
+
+.edit-session-btn:hover {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+  opacity: 0.9;
+}
+
+.edit-session-btn {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+}
+
+.edit-session-btn:hover {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+  opacity: 0.9;
+}
+
+.delete-session-btn {
+  background-color: var(--color-accent-eating-allowed);
+  border-color: var(--color-accent-eating-allowed);
+  color: white;
+}
+
+.delete-session-btn:hover {
+  background-color: var(--color-accent-eating-allowed);
+  border-color: var(--color-accent-eating-allowed);
+  color: white;
+  opacity: 0.9;
+}
+
+.save-changes-btn {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+}
+
+.save-changes-btn:hover {
+  background-color: var(--color-accent-active-fast);
+  border-color: var(--color-accent-active-fast);
+  color: white;
+  opacity: 0.9;
 }

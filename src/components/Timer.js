@@ -13,11 +13,25 @@ const toLocalISOString = (date) => {
   return localISOTime.substring(0, 16);
 };
 
+const fastingStages = [
+  { hour: 4, message: 'Анаболическая фаза: переваривание пищи' },
+  { hour: 8, message: 'Начало голодания: уровень инсулина снижается' },
+  { hour: 12, message: 'Истощение гликогена: тело переключается на жир' },
+  { hour: 16, message: 'Кетоз: начинается активное сжигание жира' },
+  { hour: 18, message: 'Аутофагия: клетки начинают очищаться' },
+  { hour: 24, message: 'Глубокий кетоз: усиленная аутофагия' },
+  { hour: 48, message: 'Пик аутофагии: максимальное клеточное обновление' },
+  { hour: 72, message: 'Регенерация: рост новых клеток' }
+];
+
 const Timer = () => {
   const [isActive, setIsActive] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [manualStartTime, setManualStartTime] = useState('');
+  const [fastingStageMessage, setFastingStageMessage] = useState('');
+  const [nextStageCountdown, setNextStageCountdown] = useState(0);
+  const [nextStageMessage, setNextStageMessage] = useState('');
 
   const [showEndModal, setShowEndModal] = useState(false);
   const [manualEndTime, setManualEndTime] = useState('');
@@ -39,7 +53,34 @@ const Timer = () => {
     let interval = null;
     if (isActive && startTime) {
       interval = setInterval(() => {
-        setElapsed(Date.now() - startTime);
+        const currentElapsed = Date.now() - startTime;
+        setElapsed(currentElapsed);
+
+        const elapsedHours = currentElapsed / (1000 * 60 * 60);
+        let currentMessage = '';
+        let nextStage = null;
+
+        for (let i = 0; i < fastingStages.length; i++) {
+          const stage = fastingStages[i];
+          if (elapsedHours >= stage.hour) {
+            currentMessage = stage.message;
+          }
+          if (elapsedHours < stage.hour) {
+            nextStage = stage;
+            break;
+          }
+        }
+        setFastingStageMessage(currentMessage);
+
+        if (nextStage) {
+          const timeToNextStage = (nextStage.hour - elapsedHours) * 60 * 60 * 1000;
+          setNextStageCountdown(timeToNextStage);
+          setNextStageMessage(nextStage.message);
+        } else {
+          setNextStageCountdown(0);
+          setNextStageMessage('');
+        }
+
       }, 1000);
     } else {
       clearInterval(interval);
@@ -119,9 +160,8 @@ const Timer = () => {
   return (
     <Card>
       <Card.Body className="text-center">
-        <Card.Title>Таймер голодания</Card.Title>
-        <div className="my-4 d-flex justify-content-center">
-          <CircularTimer size={120} elapsed={elapsed} startTime={startTime} />
+        <div className="mb-4 d-flex justify-content-center">
+          <CircularTimer size={170} elapsed={elapsed} startTime={startTime} fastingStageMessage={fastingStageMessage} nextStageCountdown={nextStageCountdown} nextStageMessage={nextStageMessage} />
         </div>
 
         {!isActive && (
@@ -138,17 +178,17 @@ const Timer = () => {
         <Row>
           <Col>
             {!isActive ? (
-              <Button variant="success" size="lg" onClick={handleStart} className="w-100">
+              <Button className="w-100 start-fast-btn" size="lg" onClick={handleStart}>
                 Начать
               </Button>
             ) : (
-              <Button variant="danger" size="lg" onClick={handleShowEndModal} className="w-100">
+              <Button className="w-100 end-fast-btn" size="lg" onClick={handleShowEndModal}>
                 Завершить
               </Button>
             )}
           </Col>
           <Col>
-            <Button variant="secondary" size="lg" onClick={handleReset} className="w-100" disabled={!elapsed && !isActive}>
+            <Button className="w-100 reset-fast-btn" size="lg" onClick={handleReset} disabled={!elapsed && !isActive}>
               Сбросить
             </Button>
           </Col>
@@ -182,7 +222,7 @@ const Timer = () => {
               placeholder="Например, 1.5"
             />
           </Form.Group>
-          <Button variant="primary" onClick={handleStopNow} className="w-100 mb-3">
+          <Button className="w-100 mb-3 save-now-btn" onClick={handleStopNow}>
             Завершить сейчас
           </Button>
           <hr />
@@ -194,7 +234,7 @@ const Timer = () => {
               onChange={(e) => setManualEndTime(e.target.value)}
             />
           </Form.Group>
-          <Button variant="success" onClick={handleStopAtTime} className="w-100">
+          <Button className="w-100 save-at-time-btn" onClick={handleStopAtTime}>
             Сохранить указанное время
           </Button>
         </Modal.Body>

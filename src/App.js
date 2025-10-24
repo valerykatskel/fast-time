@@ -90,11 +90,7 @@ function App() {
 
   return (
     <div className="app-container">
-
-
-      <Container className="my-4 container-mobile">
-        <h1 className="text-center mb-4">Интервальное голодание</h1>
-        
+      <Container className="container-mobile">
         {activeTab === 'timer' && (
           <div className="p-3">
             <Timer />
